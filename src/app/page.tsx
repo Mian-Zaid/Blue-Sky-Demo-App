@@ -11,7 +11,7 @@ export default function Homepage() {
   const initializeSession = async () => {
     try {
       const sessionResponse = await createSession(
-        "mian-zaid.bsky.social",
+        process.env.NEXT_PUBLIC_BSKY_HANDLE || "",
         process.env.NEXT_PUBLIC_BSKY_PASS || "" // Use environment variable accessible on the client
       );
       setSessionDetails(sessionResponse);
