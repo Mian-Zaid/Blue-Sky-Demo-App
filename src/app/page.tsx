@@ -1,101 +1,105 @@
-import Image from "next/image";
+"use client"; // Ensure this file is treated as a client-side component
+import { useEffect, useState } from "react";
+import { createPost, createSession, logout } from "~/lib/api";
 
-export default function Home() {
+export default function Homepage() {
+  const [sessionDetails, setSessionDetails] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [postMessage, setPostMessage] = useState("");
+  const [postContent, setPostContent] = useState(""); // State for input field
+
+  const initializeSession = async () => {
+    try {
+      const sessionResponse = await createSession(
+        "mian-zaid.bsky.social",
+        process.env.NEXT_PUBLIC_BSKY_PASS || "" // Use environment variable accessible on the client
+      );
+      setSessionDetails(sessionResponse);
+    } catch (error) {
+      console.error("Failed to initialize session:", error);
+    }
+  };
+
+  useEffect(() => {
+    initializeSession();
+  }, []);
+
+  const handleCreatePost = async () => {
+
+    if (!postContent.trim()) {
+      setPostMessage("Post content cannot be empty.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await createPost(postContent);
+      setPostMessage("Post created successfully!");
+      console.log("Post Response:", response);
+      setPostContent("");
+    } catch (error) {
+      setPostMessage("Failed to create post. Check console for details.");
+      console.error("Post Creation Error:", error);
+
+      useEffect(() => {
+        initializeSession();
+      }, []);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    const res = await logout();
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="container mx-auto">
+      <h1 className="font-bold text-xl my-4">Session Details</h1>
+      <div>
+        {sessionDetails ? (
+          <div>
+            <pre className="text-sm">
+              Session Logged in
+              {/* {JSON.stringify(sessionDetails, null, 2)} */}
+            </pre>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            {/* <button className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-blue-600" onClick={handleLogout}>Logout</button> */}
+
+          </div>
+
+        ) : (
+          <p>Loading session details...</p>
+        )}
+      </div>
+
+      <div className="mt-4">
+        <label htmlFor="postContent" className="block text-sm font-medium ">
+          Enter Post Content:
+        </label>
+        <textarea
+          id="postContent"
+          rows={3}
+          value={postContent}
+          onChange={(e) => {
+            setPostContent(e.target.value)
+
+          }
+          }
+          className="mt-1 block w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-800"
+          placeholder="Write your post here..."
+        ></textarea>
+      </div>
+
+      <button
+        onClick={handleCreatePost}
+        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        disabled={loading}
+      >
+        {loading ? "Creating Post..." : "Create Post"}
+      </button>
+
+      {postMessage && <p className="mt-4 text-green-500">{postMessage}</p>}
     </div>
   );
 }
