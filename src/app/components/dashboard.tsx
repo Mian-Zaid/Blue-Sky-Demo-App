@@ -28,7 +28,7 @@ const Dashboard: React.FC<DashboardProps> = ({ sessionDetails, onLogout }) => {
 
     useEffect(() => {
         fetchUserProfile()
-    }, [userProfile])
+    }, [])
 
     const handleCreatePost = async () => {
         if (!postContent.trim()) {
