@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import { createPost, logout } from "~/lib/api";
 import LoginForm from "./components/login";
 import Dashboard from "./components/dashboard";
 
