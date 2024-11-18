@@ -6,6 +6,13 @@ export const agent = new AtpAgent({
   service: "https://bsky.social", // Main service URL
 });
 
+export const fetchProfile = async (identifier: string) => {
+  const profile = await agent.getProfile({ actor: identifier })
+  console.log("Profile: ", profile)
+
+  return profile
+}
+
 // Function to authenticate and set up a session
 export const createSession = async (identifier: string, password: string) => {
   try {
@@ -27,7 +34,9 @@ export const logout = async () => {
   try {
     const response = await agent.logout();
 
-    console.log("Loguot successfully:", response);
+   
+
+    console.log("Logout successfully:", response);
     return response;
 
   } catch (error) {
